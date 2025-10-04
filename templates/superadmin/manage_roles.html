@@ -1,0 +1,196 @@
+{% extends "superadmin/layout.html" %}
+
+{% block superadmin_content %}
+    <h2>Gestionar Roles y Permisos</h2>
+    <hr>
+    <div class="row">
+        <!-- Columna para crear y listar roles -->
+        <div class="col-md-5">
+            <h4>Roles del Sistema</h4>
+
+            <!-- Formulario para crear nuevo rol -->
+            <div class="card mb-4">
+                <div class="card-header">Crear Nuevo Rol</div>
+                <div class="card-body">
+                    <form id="create-role-form">
+                        <div class="mb-3">
+                            <label for="role-name" class="form-label">Nombre del Rol</label>
+                            <input type="text" class="form-control" id="role-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="role-description" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="role-description" rows="2"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Crear Rol</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Lista de roles existentes -->
+            <h5>Roles Existentes</h5>
+            <div id="roles-list" class="list-group">
+                <!-- Los roles se cargarán aquí dinámicamente -->
+                <a href="#" class="list-group-item list-group-item-action">Cargando...</a>
+            </div>
+        </div>
+
+        <!-- Columna para asignar permisos al rol seleccionado -->
+        <div class="col-md-7">
+            <h4>Permisos del Rol: <span id="selected-role-name" class="text-primary">Ninguno seleccionado</span></h4>
+            <div id="permissions-container" class="d-none">
+                <form id="permissions-form">
+                    <input type="hidden" id="selected-role-id">
+                    <div id="permissions-list" class="mb-3">
+                        <!-- Los permisos se cargarán aquí dinámicamente -->
+                    </div>
+                    <button type="submit" class="btn btn-success">Guardar Permisos</button>
+                </form>
+            </div>
+            <div id="permissions-placeholder">
+                <p class="text-muted">Selecciona un rol de la lista para ver y editar sus permisos.</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const rolesList = document.getElementById('roles-list');
+    const permissionsContainer = document.getElementById('permissions-container');
+    const permissionsList = document.getElementById('permissions-list');
+    const selectedRoleName = document.getElementById('selected-role-name');
+    const selectedRoleIdInput = document.getElementById('selected-role-id');
+    const permissionsPlaceholder = document.getElementById('permissions-placeholder');
+    const createRoleForm = document.getElementById('create-role-form');
+    const permissionsForm = document.getElementById('permissions-form');
+
+    let allPermissions = [];
+
+    // --- Funciones de Carga ---
+
+    async function loadRoles() {
+        const response = await fetch("{{ url_for('superadmin.api_get_roles') }}");
+        const result = await response.json();
+        rolesList.innerHTML = '';
+        if (result.success) {
+            result.data.forEach(role => {
+                const a = document.createElement('a');
+                a.href = '#';
+                a.className = 'list-group-item list-group-item-action';
+                a.textContent = role.name;
+                a.dataset.roleId = role.id;
+                a.dataset.roleName = role.name;
+                rolesList.appendChild(a);
+            });
+        }
+    }
+
+    async function loadAllPermissions() {
+        const response = await fetch("{{ url_for('superadmin.api_get_permissions') }}");
+        const result = await response.json();
+        if (result.success) {
+            allPermissions = result.data;
+        }
+    }
+
+    async function loadPermissionsForRole(roleId, roleName) {
+        // Mostrar el contenedor de permisos y actualizar el nombre del rol
+        permissionsContainer.classList.remove('d-none');
+        permissionsPlaceholder.classList.add('d-none');
+        selectedRoleName.textContent = roleName;
+        selectedRoleIdInput.value = roleId;
+
+        // Cargar los permisos asignados a este rol
+        const response = await fetch(`/superadmin/api/superadmin/roles/${roleId}/permissions`);
+        const result = await response.json();
+        const assignedPermissionIds = new Set(result.data);
+
+        // Renderizar todos los permisos con los asignados marcados
+        permissionsList.innerHTML = '';
+        allPermissions.forEach(permission => {
+            const isChecked = assignedPermissionIds.has(permission.id);
+            const div = document.createElement('div');
+            div.className = 'form-check';
+            div.innerHTML = `
+                <input class="form-check-input" type="checkbox" value="${permission.id}" id="perm-${permission.id}" ${isChecked ? 'checked' : ''}>
+                <label class="form-check-label" for="perm-${permission.id}">
+                    <strong>${permission.name}</strong>: ${permission.description}
+                </label>
+            `;
+            permissionsList.appendChild(div);
+        });
+    }
+
+    // --- Manejadores de Eventos ---
+
+    rolesList.addEventListener('click', function(e) {
+        e.preventDefault();
+        if (e.target.tagName === 'A') {
+            // Desmarcar rol activo anterior
+            const currentActive = rolesList.querySelector('.active');
+            if (currentActive) {
+                currentActive.classList.remove('active');
+            }
+            // Marcar nuevo rol activo
+            e.target.classList.add('active');
+            const roleId = e.target.dataset.roleId;
+            const roleName = e.target.dataset.roleName;
+            loadPermissionsForRole(roleId, roleName);
+        }
+    });
+
+    createRoleForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const name = document.getElementById('role-name').value;
+        const description = document.getElementById('role-description').value;
+
+        const response = await fetch("{{ url_for('superadmin.api_create_role') }}", {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name, description })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            alert('Rol creado exitosamente');
+            createRoleForm.reset();
+            loadRoles();
+        } else {
+            alert('Error: ' + result.error);
+        }
+    });
+
+    permissionsForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const roleId = selectedRoleIdInput.value;
+        if (!roleId) return;
+
+        const checkedPermissions = permissionsList.querySelectorAll('input[type="checkbox"]:checked');
+        const permission_ids = Array.from(checkedPermissions).map(input => parseInt(input.value));
+
+        const response = await fetch(`/superadmin/api/superadmin/roles/${roleId}/permissions`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ permission_ids })
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            alert(result.message);
+        } else {
+            alert('Error al guardar los permisos.');
+        }
+    });
+
+    // --- Inicialización ---
+    async function initialize() {
+        await loadAllPermissions();
+        await loadRoles();
+    }
+
+    initialize();
+});
+</script>
+{% endblock %}

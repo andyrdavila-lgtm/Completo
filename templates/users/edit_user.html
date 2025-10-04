@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+
+{% block title %}Editar Usuario - {{ super() }}{% endblock %}
+
+{% block content %}
+    <h2>Editar Usuario: {{ user.username }}</h2>
+    <hr>
+    {% include "users/_user_form.html" %}
+{% endblock %}

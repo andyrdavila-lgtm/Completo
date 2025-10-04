@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+
+{% block title %}Añadir Nuevo Usuario - {{ super() }}{% endblock %}
+
+{% block content %}
+    <h2>Añadir Nuevo Usuario para {{ g.tenant.name }}</h2>
+    <hr>
+    {% include "users/_user_form.html" %}
+{% endblock %}

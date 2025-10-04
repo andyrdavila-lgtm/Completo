@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Productos - A&D</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/productos.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar izquierdo -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-boxes"></i> A&D Productos</h2>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Resumen de Inventario</h3>
+                <div class="stats-card">
+                    <div class="stats-number" id="sidebar-total-products">0</div>
+                    <div class="stats-label">Productos Totales</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="sidebar-low-stock">0</div>
+                    <div class="stats-label">Stock Bajo</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="sidebar-out-of-stock">0</div>
+                    <div class="stats-label">Sin Stock</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Alertas de Stock</h3>
+                <div class="reminder-item">
+                    <div class="reminder-date">Urgente</div>
+                    <div class="reminder-text">Coca-Cola - Stock: 5 unidades</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-date">Próximo</div>
+                    <div class="reminder-text">Pan Integral - Stock: 12 unidades</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-date">Observar</div>
+                    <div class="reminder-text">Leche Entera - Stock: 15 unidades</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Acciones Rápidas</h3>
+                <div class="reminder-item">
+                    <div class="reminder-text">Nuevo Producto</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-text">Importar CSV</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-text">Reporte Inventario</div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Contenido principal -->
+        <main class="dashboard-main">
+            <!-- Top Bar -->
+            <header class="dashboard-topbar">
+                
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar productos...">
+                </div>
+                
+                <nav class="dashboard-tabs">
+                    <button class="tab">Inicio</button>
+                    <button class="tab active">Productos</button>
+                    <button class="tab">Categorías</button>
+                    <button class="tab">Inventario</button>
+                </nav>
+                
+                <div class="topbar-actions">
+                    <button class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">2</span>
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Contenido del Módulo de Productos -->
+            <div class="dashboard-content">
+                <!-- Formulario para Agregar Producto -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-box"></i> Agregar Nuevo Producto</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="product-form" class="form-grid">
+                            <div class="form-group">
+                                <label for="product-name" class="form-label">Nombre del Producto</label>
+                                <input type="text" id="product-name" class="form-input" placeholder="Nombre del producto" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-price" class="form-label">Precio Unitario</label>
+                                <input type="number" id="product-price" class="form-input" placeholder="0.00" step="0.01" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-stock" class="form-label">Stock Inicial</label>
+                                <input type="number" id="product-stock" class="form-input" placeholder="Cantidad" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-total" class="form-label">Valor Total</label>
+                                <input type="text" id="product-total" class="form-input" readonly>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-image" class="form-label">URL de Imagen</label>
+                                <input type="url" id="product-image" class="form-input" placeholder="https://ejemplo.com/imagen.jpg">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="product-category" class="form-label">Categoría</label>
+                                <select id="product-category" class="form-input">
+                                    <option value="">Seleccionar categoría</option>
+                                    <option value="bebidas">Bebidas</option>
+                                    <option value="comida">Comida</option>
+                                    <option value="postres">Postres</option>
+                                    <option value="snacks">Snacks</option>
+                                    <option value="otros">Otros</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group full-width">
+                                <label for="product-description" class="form-label">Descripción</label>
+                                <textarea id="product-description" class="form-input" rows="3" placeholder="Descripción del producto"></textarea>
+                            </div>
+                            
+                            <div class="form-actions full-width">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-plus"></i> Agregar Producto
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Lista de Productos -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-boxes"></i> Lista de Productos</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Imagen</th>
+                                        <th>Nombre</th>
+                                        <th>Precio</th>
+                                        <th>Stock</th>
+                                        <th>Categoría</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="products-body">
+                                    <!-- Los productos se cargarán dinámicamente -->
+                                    <tr>
+                                        <td>
+                                            <div class="product-image">
+                                                <img src="https://via.placeholder.com/50" alt="Producto" class="product-img">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="product-name">Coca-Cola 500ml</span>
+                                        </td>
+                                        <td>
+                                            <span class="product-price">$1.50</span>
+                                        </td>
+                                        <td>
+                                            <span class="product-stock">25</span>
+                                        </td>
+                                        <td>
+                                            <span class="product-category">Bebidas</span>
+                                        </td>
+                                        <td>
+                                            <button class="action-btn primary" onclick="editProduct(this)">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </button>
+                                            <button class="action-btn danger" onclick="deleteProduct(this)">
+                                                <i class="fas fa-trash"></i> Eliminar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="product-image">
+                                                <img src="https://via.placeholder.com/50" alt="Producto" class="product-img">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="product-name">Hamburguesa Clásica</span>
+                                        </td>
+                                        <td>
+                                            <span class="product-price">$5.99</span>
+                                        </td>
+                                        <td>
+                                            <span class="product-stock">18</span>
+                                        </td>
+                                        <td>
+                                            <span class="product-category">Comida</span>
+                                        </td>
+                                        <td>
+                                            <button class="action-btn primary" onclick="editProduct(this)">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </button>
+                                            <button class="action-btn danger" onclick="deleteProduct(this)">
+                                                <i class="fas fa-trash"></i> Eliminar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="product-image">
+                                                <img src="https://via.placeholder.com/50" alt="Producto" class="product-img">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="product-name">Helado de Vainilla</span>
+                                        </td>
+                                        <td>
+                                            <span class="product-price">$3.50</span>
+                                        </td>
+                                        <td>
+                                            <span class="product-stock">8</span>
+                                        </td>
+                                        <td>
+                                            <span class="product-category">Postres</span>
+                                        </td>
+                                        <td>
+                                            <button class="action-btn primary" onclick="editProduct(this)">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </button>
+                                            <button class="action-btn danger" onclick="deleteProduct(this)">
+                                                <i class="fas fa-trash"></i> Eliminar
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/productos.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Administrador - A&D</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/superadmin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar izquierdo -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-shield-alt"></i> Super Admin</h2><p>A&D Empresa</p>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Resumen del Sistema</h3>
+                <div class="stats-card">
+                    <div class="stats-number" id="total-users">0</div>
+                    <div class="stats-label">Usuarios Totales</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="active-users">0</div>
+                    <div class="stats-label">Usuarios Activos</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="total-clients">0</div>
+                    <div class="stats-label">Clientes</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="pending-payments">0</div>
+                    <div class="stats-label">Pagos Pendientes</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Acciones Rápidas</h3>
+                <div class="reminder-item" onclick="showSection('users')">
+                    <div class="reminder-text">Gestión de Usuarios</div>
+                </div>
+                <div class="reminder-item" onclick="showSection('clients')">
+                    <div class="reminder-text">Gestión de Clientes</div>
+                </div>
+                <div class="reminder-item" onclick="showSection('modules')">
+                    <div class="reminder-text">Configurar Módulos</div>
+                </div>
+                <div class="reminder-item" onclick="showSection('subscriptions')">
+                    <div class="reminder-text">Suscripciones</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Alertas del Sistema</h3>
+                <div class="reminder-item alert">
+                    <div class="reminder-date">Hoy</div>
+                    <div class="reminder-text">3 usuarios bloqueados</div>
+                </div>
+                <div class="reminder-item warning">
+                    <div class="reminder-date">Esta semana</div>
+                    <div class="reminder-text">5 suscripciones vencen</div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Contenido principal -->
+        <main class="dashboard-main">
+            <!-- Top Bar -->
+            <header class="dashboard-topbar">
+                <div class="company-info">
+                    </div>
+                
+                <div class="search-bar">
+                    <input type="text" id="global-search" placeholder="Buscar usuarios, clientes...">
+                </div>
+                
+                <nav class="dashboard-tabs">
+                    <button class="tab" onclick="showSection('dashboard')">Dashboard</button>
+                    <button class="tab" onclick="showSection('users')">Usuarios</button>
+                    <button class="tab" onclick="showSection('clients')">Clientes</button>
+                    <button class="tab" onclick="showSection('modules')">Módulos</button>
+                    <button class="tab" onclick="showSection('subscriptions')">Suscripciones</button>
+                    <button class="tab" onclick="showSection('system')">Sistema</button>
+                </nav>
+                
+                <div class="topbar-actions">
+                    <button class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">7</span>
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Contenido del Super Administrador -->
+            <div class="dashboard-content">
+                <!-- Dashboard Principal -->
+                <div id="dashboard-section" class="content-section active">
+                    <div class="section-header">
+                        <h2><i class="fas fa-tachometer-alt"></i> Panel de Control del Super Administrador</h2>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="stat-total-users">0</div>
+                                <div class="stat-label">Usuarios Totales</div>
+                            </div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> 12%
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="stat-total-clients">0</div>
+                                <div class="stat-label">Clientes Activos</div>
+                            </div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> 8%
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-cube"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="stat-active-modules">0</div>
+                                <div class="stat-label">Módulos Activos</div>
+                            </div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> 5%
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="stat-pending-issues">0</div>
+                                <div class="stat-label">Problemas Pendientes</div>
+                            </div>
+                            <div class="stat-trend negative">
+                                <i class="fas fa-arrow-up"></i> 3%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>Actividad Reciente</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="activity-list">
+                                    <div class="activity-item">
+                                        <div class="activity-icon success">
+                                            <i class="fas fa-user-plus"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">Nuevo usuario registrado</div>
+                                            <div class="activity-details">Juan Pérez se registró en el sistema</div>
+                                            <div class="activity-time">Hace 2 horas</div>
+                                        </div>
+                                    </div>
+                                    <div class="activity-item">
+                                        <div class="activity-icon warning">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">Suscripción próxima a vencer</div>
+                                            <div class="activity-details">Cliente Corporativo XYZ - Vence en 3 días</div>
+                                            <div class="activity-time">Hace 5 horas</div>
+                                        </div>
+                                    </div>
+                                    <div class="activity-item">
+                                        <div class="activity-icon primary">
+                                            <i class="fas fa-cog"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <div class="activity-title">Configuración modificada</div>
+                                            <div class="activity-details">Módulo de Pedidos actualizado</div>
+                                            <div class="activity-time">Ayer, 14:30</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-header">
+                                <h3>Estado del Sistema</h3>
+                            </div>
+                            <div class="card-content">
+                                <div class="system-status">
+                                    <div class="status-item online">
+                                        <div class="status-indicator"></div>
+                                        <div class="status-info">
+                                            <div class="status-name">Servidor Principal</div>
+                                            <div class="status-details">Funcionando correctamente</div>
+                                        </div>
+                                    </div>
+                                    <div class="status-item online">
+                                        <div class="status-indicator"></div>
+                                        <div class="status-info">
+                                            <div class="status-name">Base de Datos</div>
+                                            <div class="status-details">Sincronizada y operativa</div>
+                                        </div>
+                                    </div>
+                                    <div class="status-item warning">
+                                        <div class="status-indicator"></div>
+                                        <div class="status-info">
+                                            <div class="status-name">Servicio de Email</div>
+                                            <div class="status-details">Lentitud en envíos</div>
+                                        </div>
+                                    </div>
+                                    <div class="status-item online">
+                                        <div class="status-indicator"></div>
+                                        <div class="status-info">
+                                            <div class="status-name">API Externa</div>
+                                            <div class="status-details">Conexión estable</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gestión de Usuarios -->
+                <div id="users-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-users-cog"></i> Gestión de Usuarios</h2>
+                        <button class="btn btn-primary" onclick="openUserModal()">
+                            <i class="fas fa-plus"></i> Nuevo Usuario
+                        </button>
+                    </div>
+                    
+                    <div class="filters-container">
+                        <div class="filters-row">
+                            <div class="filter-group">
+                                <label class="filter-label">Estado</label>
+                                <select id="user-status-filter" class="filter-input">
+                                    <option value="">Todos los estados</option>
+                                    <option value="active">Activo</option>
+                                    <option value="inactive">Inactivo</option>
+                                    <option value="blocked">Bloqueado</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label class="filter-label">Rol</label>
+                                <select id="user-role-filter" class="filter-input">
+                                    <option value="">Todos los roles</option>
+                                    <option value="admin">Administrador</option>
+                                    <option value="user">Usuario</option>
+                                    <option value="client">Cliente</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <button class="filter-btn" onclick="loadUsers()">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                            </div>
+                            <div class="filter-group">
+                                <button class="filter-btn secondary" onclick="clearUserFilters()">
+                                    <i class="fas fa-times"></i> Limpiar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Cliente</th>
+                                    <th>Estado</th>
+                                    <th>Último Acceso</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body">
+                                <!-- Los usuarios se cargarán aquí por API -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Gestión de Clientes -->
+                <div id="clients-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-building"></i> Gestión de Clientes</h2>
+                        <button class="btn btn-primary" onclick="openClientModal()">
+                            <i class="fas fa-plus"></i> Nuevo Cliente
+                        </button>
+                    </div>
+                    
+                    <div class="filters-container">
+                        <div class="filters-row">
+                            <div class="filter-group">
+                                <label class="filter-label">Estado</label>
+                                <select id="client-status-filter" class="filter-input">
+                                    <option value="">Todos los estados</option>
+                                    <option value="active">Activo</option>
+                                    <option value="suspended">Suspendido</option>
+                                    <option value="inactive">Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label class="filter-label">Plan</label>
+                                <select id="client-plan-filter" class="filter-input">
+                                    <option value="">Todos los planes</option>
+                                    <option value="basic">Básico</option>
+                                    <option value="premium">Premium</option>
+                                    <option value="enterprise">Empresarial</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <button class="filter-btn" onclick="loadClients()">
+                                    <i class="fas fa-search"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Contacto</th>
+                                    <th>Plan</th>
+                                    <th>Estado</th>
+                                    <th>Vencimiento</th>
+                                    <th>Módulos Activos</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clients-table-body">
+                                <!-- Los clientes se cargarán aquí por API -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Configuración de Módulos -->
+                <div id="modules-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-cubes"></i> Configuración de Módulos</h2>
+                        <button class="btn btn-primary" onclick="saveModuleConfig()">
+                            <i class="fas fa-save"></i> Guardar Configuración
+                        </button>
+                    </div>
+                    
+                    <div class="modules-config">
+                        <div class="config-section">
+                            <h3>Módulos del Sistema</h3>
+                            <div class="modules-grid" id="modules-grid">
+                                <!-- Los módulos se cargarán aquí por API -->
+                            </div>
+                        </div>
+                        
+                        <div class="config-section">
+                            <h3>Asignación por Cliente</h3>
+                            <div class="client-modules-config">
+                                <div class="form-group">
+                                    <label class="form-label">Seleccionar Cliente</label>
+                                    <select id="client-select" class="form-select" onchange="loadClientModules()">
+                                        <option value="">Seleccione un cliente</option>
+                                    </select>
+                                </div>
+                                <div id="client-modules-container" style="display: none;">
+                                    <h4>Módulos asignados a: <span id="selected-client-name"></span></h4>
+                                    <div class="client-modules-list" id="client-modules-list">
+                                        <!-- Módulos del cliente seleccionado -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gestión de Suscripciones -->
+                <div id="subscriptions-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-credit-card"></i> Gestión de Suscripciones</h2>
+                        <button class="btn btn-primary" onclick="openSubscriptionModal()">
+                            <i class="fas fa-plus"></i> Nueva Suscripción
+                        </button>
+                    </div>
+                    
+                    <div class="subscriptions-overview">
+                        <div class="subscription-stats">
+                            <div class="subscription-stat">
+                                <div class="stat-value" id="active-subscriptions">0</div>
+                                <div class="stat-label">Activas</div>
+                            </div>
+                            <div class="subscription-stat">
+                                <div class="stat-value" id="expiring-subscriptions">0</div>
+                                <div class="stat-label">Por Vencer</div>
+                            </div>
+                            <div class="subscription-stat">
+                                <div class="stat-value" id="expired-subscriptions">0</div>
+                                <div class="stat-label">Vencidas</div>
+                            </div>
+                            <div class="subscription-stat">
+                                <div class="stat-value" id="total-revenue">$0</div>
+                                <div class="stat-label">Ingresos Mensuales</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Plan</th>
+                                    <th>Estado</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Fecha Vencimiento</th>
+                                    <th>Próximo Pago</th>
+                                    <th>Monto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subscriptions-table-body">
+                                <!-- Las suscripciones se cargarán aquí por API -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Configuración del Sistema -->
+                <div id="system-section" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-sliders-h"></i> Configuración del Sistema</h2>
+                    </div>
+                    
+                    <div class="system-config">
+                        <div class="config-card">
+                            <h3><i class="fas fa-shield-alt"></i> Seguridad</h3>
+                            <div class="config-options">
+                                <div class="config-option">
+                                    <label class="switch">
+                                        <input type="checkbox" id="two-factor-auth" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="option-label">Autenticación de dos factores</span>
+                                </div>
+                                <div class="config-option">
+                                    <label class="switch">
+                                        <input type="checkbox" id="password-policy" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="option-label">Política de contraseñas seguras</span>
+                                </div>
+                                <div class="config-option">
+                                    <label class="switch">
+                                        <input type="checkbox" id="session-timeout">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="option-label">Timeout automático de sesión</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="config-card">
+                            <h3><i class="fas fa-bell"></i> Notificaciones</h3>
+                            <div class="config-options">
+                                <div class="config-option">
+                                    <label class="switch">
+                                        <input type="checkbox" id="email-notifications" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="option-label">Notificaciones por email</span>
+                                </div>
+                                <div class="config-option">
+                                    <label class="switch">
+                                        <input type="checkbox" id="subscription-alerts" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="option-label">Alertas de suscripción</span>
+                                </div>
+                                <div class="config-option">
+                                    <label class="switch">
+                                        <input type="checkbox" id="system-alerts">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="option-label">Alertas del sistema</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="config-card">
+                            <h3><i class="fas fa-database"></i> Base de Datos</h3>
+                            <div class="config-options">
+                                <div class="config-option">
+                                    <button class="btn btn-secondary" onclick="backupDatabase()">
+                                        <i class="fas fa-download"></i> Respaldar Base de Datos
+                                    </button>
+                                </div>
+                                <div class="config-option">
+                                    <button class="btn btn-secondary" onclick="optimizeDatabase()">
+                                        <i class="fas fa-broom"></i> Optimizar Base de Datos
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para Usuario -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> <span id="userModalTitle">Nuevo Usuario</span></h3>
+                <button class="modal-close" onclick="closeUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nombre Completo</label>
+                            <input type="text" id="user-name" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="user-email" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Rol</label>
+                            <select id="user-role" class="form-select" required>
+                                <option value="user">Usuario</option>
+                                <option value="admin">Administrador</option>
+                                <option value="client">Cliente</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cliente Asociado</label>
+                            <select id="user-client" class="form-select">
+                                <option value="">Sin cliente</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Estado</label>
+                        <select id="user-status" class="form-select" required>
+                            <option value="active">Activo</option>
+                            <option value="inactive">Inactivo</option>
+                            <option value="blocked">Bloqueado</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeUserModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveUser()">Guardar Usuario</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Cliente -->
+    <div class="modal-overlay" id="clientModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-building"></i> <span id="clientModalTitle">Nuevo Cliente</span></h3>
+                <button class="modal-close" onclick="closeClientModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="clientForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nombre de la Empresa</label>
+                            <input type="text" id="client-company" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Contacto Principal</label>
+                            <input type="text" id="client-contact" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" id="client-email" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" id="client-phone" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Plan</label>
+                            <select id="client-plan" class="form-select" required>
+                                <option value="basic">Básico</option>
+                                <option value="premium">Premium</option>
+                                <option value="enterprise">Empresarial</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Estado</label>
+                            <select id="client-status" class="form-select" required>
+                                <option value="active">Activo</option>
+                                <option value="suspended">Suspendido</option>
+                                <option value="inactive">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeClientModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveClient()">Guardar Cliente</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/superadmin.js') }}"></script>
+</body>
+</html>

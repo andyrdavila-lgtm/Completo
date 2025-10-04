@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes Avanzados - A&D</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reportes.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar izquierdo -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-chart-bar"></i> Reportes</h2>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Reportes Rápidos</h3>
+                <div class="stats-card">
+                    <div class="stats-number" id="reportes-generados">156</div>
+                    <div class="stats-label">Generados Hoy</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="reportes-programados">24</div>
+                    <div class="stats-label">Programados</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Categorías</h3>
+                <div class="reminder-item">
+                    <div class="reminder-text">Ventas y Facturación</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-text">Inventario</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-text">Clientes</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-text">Financiero</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Acciones Rápidas</h3>
+                <div class="reminder-item">
+                    <div class="reminder-text">Reporte Diario</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-text">Reporte Mensual</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-text">Personalizar</div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Contenido principal -->
+        <main class="dashboard-main">
+            <!-- Top Bar -->
+            <header class="dashboard-topbar">
+                <div class="company-info">
+                    <h1>A&D Empresa</h1>
+                    <p>Reportes Avanzados - <span id="user-name">Usuario</span></p>
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar reportes...">
+                </div>
+                
+                <nav class="dashboard-tabs">
+                    <button class="tab">Inicio</button>
+                    <button class="tab">Pedidos</button>
+                    <button class="tab">Facturación</button>
+                    <button class="tab active">Reportes</button>
+                </nav>
+                
+                <div class="topbar-actions">
+                    <button class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">1</span>
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Contenido del Módulo -->
+            <div class="dashboard-content">
+                <!-- Estadísticas -->
+                <div class="module-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-number" id="ventas-totales">$45,680</div>
+                        <div class="stat-label">Ventas Totales</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-number" id="clientes-activos">156</div>
+                        <div class="stat-label">Clientes Activos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="stat-number" id="productos-stock">892</div>
+                        <div class="stat-label">Productos en Stock</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-number" id="crecimiento">12.5%</div>
+                        <div class="stat-label">Crecimiento</div>
+                    </div>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="filters-container">
+                    <div class="filters-row">
+                        <div class="filter-group">
+                            <label class="filter-label">Tipo de Reporte</label>
+                            <select id="tipo-reporte" class="filter-input">
+                                <option value="">Seleccionar tipo</option>
+                                <option value="ventas">Ventas</option>
+                                <option value="inventario">Inventario</option>
+                                <option value="clientes">Clientes</option>
+                                <option value="financiero">Financiero</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Fecha Inicio</label>
+                            <input type="date" id="fecha-inicio" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Fecha Fin</label>
+                            <input type="date" id="fecha-fin" class="filter-input">
+                        </div>
+                        <div class="filter-group">
+                            <label class="filter-label">Formato</label>
+                            <select id="formato-reporte" class="filter-input">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="html">HTML</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <button class="filter-btn" id="generar-reporte">
+                                <i class="fas fa-cog"></i> Generar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos y Reportes -->
+                <div class="reports-grid">
+                    <!-- Reporte de Ventas -->
+                    <div class="report-card">
+                        <div class="report-header">
+                            <h3><i class="fas fa-chart-line"></i> Ventas por Mes</h3>
+                            <button class="action-btn primary">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-placeholder">
+                                Gráfico de ventas mensuales
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Productos -->
+                    <div class="report-card">
+                        <div class="report-header">
+                            <h3><i class="fas fa-star"></i> Top Productos</h3>
+                            <button class="action-btn primary">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Ventas</th>
+                                        <th>Ingresos</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Producto A</td>
+                                        <td>156 unidades</td>
+                                        <td>$4,560</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Producto B</td>
+                                        <td>128 unidades</td>
+                                        <td>$3,840</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Producto C</td>
+                                        <td>95 unidades</td>
+                                        <td>$2,850</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Reporte de Clientes -->
+                    <div class="report-card">
+                        <div class="report-header">
+                            <h3><i class="fas fa-users"></i> Comportamiento Clientes</h3>
+                            <button class="action-btn primary">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-placeholder">
+                                Gráfico de comportamiento de clientes
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inventario -->
+                    <div class="report-card">
+                        <div class="report-header">
+                            <h3><i class="fas fa-boxes"></i> Estado de Inventario</h3>
+                            <button class="action-btn primary">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Categoría</th>
+                                        <th>Stock</th>
+                                        <th>Valor</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Electrónicos</td>
+                                        <td>245 unidades</td>
+                                        <td>$45,600</td>
+                                        <td><span class="status-badge status-optimo">Óptimo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Hogar</td>
+                                        <td>89 unidades</td>
+                                        <td>$12,300</td>
+                                        <td><span class="status-badge status-bajo">Bajo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Oficina</td>
+                                        <td>156 unidades</td>
+                                        <td>$23,450</td>
+                                        <td><span class="status-badge status-optimo">Óptimo</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/reportes.js') }}"></script>
+</body>
+</html>

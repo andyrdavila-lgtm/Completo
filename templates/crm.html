@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM & Helpdesk - A&D</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/crm.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar izquierdo -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-users"></i> CRM A&D</h2>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Resumen CRM</h3>
+                <div class="stats-card">
+                    <div class="stats-number" id="sidebar-total-clients">0</div>
+                    <div class="stats-label">Clientes Totales</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="sidebar-new-leads">0</div>
+                    <div class="stats-label">Nuevos Leads</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="sidebar-pending-tasks">0</div>
+                    <div class="stats-label">Tareas Pendientes</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Canales Activos</h3>
+                <div class="channel-status">
+                    <div class="channel-item online">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="channel-item online">
+                        <i class="fab fa-facebook-messenger"></i>
+                        <span>Messenger</span>
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="channel-item offline">
+                        <i class="fab fa-instagram"></i>
+                        <span>Instagram</span>
+                        <div class="status-dot"></div>
+                    </div>
+                    <div class="channel-item online">
+                        <i class="fas fa-envelope"></i>
+                        <span>Email</span>
+                        <div class="status-dot"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Acciones Rápidas</h3>
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="openNewContactModal()">
+                        <i class="fas fa-user-plus"></i> Nuevo Contacto
+                    </button>
+                    <button class="quick-action-btn" onclick="openBroadcastModal()">
+                        <i class="fas fa-bullhorn"></i> Mensaje Masivo
+                    </button>
+                    <button class="quick-action-btn" onclick="openCampaignModal()">
+                        <i class="fas fa-chart-line"></i> Nueva Campaña
+                    </button>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Contenido principal -->
+        <main class="dashboard-main">
+            <!-- Top Bar -->
+            <header class="dashboard-topbar">
+                <div class="company-info">
+                    <h1>A&D Empresa</h1>
+                    <p>CRM & Helpdesk - <span id="user-name">Usuario</span></p>
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar contactos, conversaciones...">
+                </div>
+                
+                <nav class="dashboard-tabs">
+                    <button class="tab active" data-tab="dashboard">Dashboard</button>
+                    <button class="tab" data-tab="contacts">Contactos</button>
+                    <button class="tab" data-tab="conversations">Conversaciones</button>
+                    <button class="tab" data-tab="campaigns">Campañas</button>
+                    <button class="tab" data-tab="reports">Reportes</button>
+                </nav>
+                
+                <div class="topbar-actions">
+                    <button class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">12</span>
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Contenido del CRM -->
+            <div class="dashboard-content">
+                <!-- Pestaña Dashboard -->
+                <div class="tab-content active" id="tab-dashboard">
+                    <!-- Estadísticas CRM -->
+                    <div class="crm-stats">
+                        <div class="crm-stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="total-contacts">0</div>
+                                <div class="stat-label">Contactos Totales</div>
+                            </div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> 12%
+                            </div>
+                        </div>
+                        <div class="crm-stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="active-conversations">0</div>
+                                <div class="stat-label">Conversaciones Activas</div>
+                            </div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> 8%
+                            </div>
+                        </div>
+                        <div class="crm-stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="pending-tasks">0</div>
+                                <div class="stat-label">Tareas Pendientes</div>
+                            </div>
+                            <div class="stat-trend negative">
+                                <i class="fas fa-arrow-down"></i> 5%
+                            </div>
+                        </div>
+                        <div class="crm-stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-number" id="conversion-rate">0%</div>
+                                <div class="stat-label">Tasa de Conversión</div>
+                            </div>
+                            <div class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> 3%
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos y Métricas -->
+                    <div class="metrics-container">
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h3>Actividad por Canal</h3>
+                                <select class="metric-filter">
+                                    <option>Últimos 7 días</option>
+                                    <option>Últimos 30 días</option>
+                                    <option>Este mes</option>
+                                </select>
+                            </div>
+                            <div class="chart-placeholder">
+                                <div class="chart-bars">
+                                    <div class="chart-bar" style="height: 80%;" data-channel="WhatsApp"></div>
+                                    <div class="chart-bar" style="height: 65%;" data-channel="Messenger"></div>
+                                    <div class="chart-bar" style="height: 45%;" data-channel="Instagram"></div>
+                                    <div class="chart-bar" style="height: 30%;" data-channel="Email"></div>
+                                </div>
+                                <div class="chart-labels">
+                                    <span>WhatsApp</span>
+                                    <span>Messenger</span>
+                                    <span>Instagram</span>
+                                    <span>Email</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <h3>Estado de Conversaciones</h3>
+                            </div>
+                            <div class="conversation-stats">
+                                <div class="conversation-stat">
+                                    <div class="stat-dot new"></div>
+                                    <span>Nuevas (15)</span>
+                                </div>
+                                <div class="conversation-stat">
+                                    <div class="stat-dot active"></div>
+                                    <span>Activas (28)</span>
+                                </div>
+                                <div class="conversation-stat">
+                                    <div class="stat-dot pending"></div>
+                                    <span>Pendientes (12)</span>
+                                </div>
+                                <div class="conversation-stat">
+                                    <div class="stat-dot resolved"></div>
+                                    <span>Resueltas (45)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Conversaciones Recientes -->
+                    <div class="recent-conversations">
+                        <div class="section-header">
+                            <h3><i class="fas fa-comments"></i> Conversaciones Recientes</h3>
+                            <button class="btn-primary" onclick="openAllConversations()">
+                                Ver Todas
+                            </button>
+                        </div>
+                        <div class="conversations-list">
+                            <div class="conversation-item unread">
+                                <div class="conversation-avatar">
+                                    <i class="fab fa-whatsapp"></i>
+                                </div>
+                                <div class="conversation-content">
+                                    <div class="conversation-header">
+                                        <span class="contact-name">María González</span>
+                                        <span class="conversation-time">Hace 5 min</span>
+                                    </div>
+                                    <div class="conversation-preview">
+                                        Hola, me interesa el servicio premium que ofrecen...
+                                    </div>
+                                </div>
+                                <div class="conversation-badge">3</div>
+                            </div>
+                            <div class="conversation-item">
+                                <div class="conversation-avatar">
+                                    <i class="fab fa-facebook-messenger"></i>
+                                </div>
+                                <div class="conversation-content">
+                                    <div class="conversation-header">
+                                        <span class="contact-name">Carlos López</span>
+                                        <span class="conversation-time">Hace 15 min</span>
+                                    </div>
+                                    <div class="conversation-preview">
+                                        ¿Podrían enviarme más información sobre los precios?
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="conversation-item unread">
+                                <div class="conversation-avatar">
+                                    <i class="fab fa-instagram"></i>
+                                </div>
+                                <div class="conversation-content">
+                                    <div class="conversation-header">
+                                        <span class="contact-name">Ana Martínez</span>
+                                        <span class="conversation-time">Hace 1 hora</span>
+                                    </div>
+                                    <div class="conversation-preview">
+                                        ¡Me encanta su producto! Quisiera hacer un pedido...
+                                    </div>
+                                </div>
+                                <div class="conversation-badge">1</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña Contactos -->
+                <div class="tab-content" id="tab-contacts">
+                    <div class="contacts-header">
+                        <h2><i class="fas fa-address-book"></i> Gestión de Contactos</h2>
+                        <div class="contacts-actions">
+                            <button class="btn-primary" onclick="openNewContactModal()">
+                                <i class="fas fa-plus"></i> Nuevo Contacto
+                            </button>
+                            <button class="btn-secondary" onclick="importContacts()">
+                                <i class="fas fa-upload"></i> Importar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="contacts-filters">
+                        <input type="text" placeholder="Buscar contactos..." class="search-input">
+                        <select class="filter-select">
+                            <option>Todos los contactos</option>
+                            <option>Clientes</option>
+                            <option>Prospectos</option>
+                            <option>Lead calificado</option>
+                        </select>
+                        <select class="filter-select">
+                            <option>Todos los canales</option>
+                            <option>WhatsApp</option>
+                            <option>Messenger</option>
+                            <option>Instagram</option>
+                            <option>Email</option>
+                        </select>
+                    </div>
+
+                    <div class="contacts-list">
+                        <div class="contact-card">
+                            <div class="contact-header">
+                                <div class="contact-avatar">
+                                    MG
+                                </div>
+                                <div class="contact-info">
+                                    <h4>María González</h4>
+                                    <span class="contact-tag client">Cliente</span>
+                                </div>
+                                <div class="contact-actions">
+                                    <button class="icon-btn" onclick="openContactDetails(1)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="icon-btn" onclick="startConversation(1)">
+                                        <i class="fas fa-comment"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="contact-details">
+                                <div class="contact-channel">
+                                    <i class="fab fa-whatsapp"></i> +1 234 567 890
+                                </div>
+                                <div class="contact-email">
+                                    <i class="fas fa-envelope"></i> maria@email.com
+                                </div>
+                            </div>
+                            <div class="contact-footer">
+                                <span class="last-interaction">Última interacción: Hoy</span>
+                            </div>
+                        </div>
+
+                        <div class="contact-card">
+                            <div class="contact-header">
+                                <div class="contact-avatar">
+                                    CL
+                                </div>
+                                <div class="contact-info">
+                                    <h4>Carlos López</h4>
+                                    <span class="contact-tag prospect">Prospecto</span>
+                                </div>
+                                <div class="contact-actions">
+                                    <button class="icon-btn" onclick="openContactDetails(2)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="icon-btn" onclick="startConversation(2)">
+                                        <i class="fas fa-comment"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="contact-details">
+                                <div class="contact-channel">
+                                    <i class="fab fa-facebook-messenger"></i> Carlos López
+                                </div>
+                            </div>
+                            <div class="contact-footer">
+                                <span class="last-interaction">Última interacción: Ayer</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pestaña Conversaciones -->
+                <div class="tab-content" id="tab-conversations">
+                    <div class="conversations-container">
+                        <div class="conversations-sidebar">
+                            <div class="conversations-filter">
+                                <input type="text" placeholder="Buscar conversaciones..." class="search-input">
+                                <div class="filter-tabs">
+                                    <button class="filter-tab active">Todas</button>
+                                    <button class="filter-tab">Sin leer</button>
+                                    <button class="filter-tab">Asignadas</button>
+                                </div>
+                            </div>
+                            <div class="conversations-list-detailed">
+                                <!-- Lista de conversaciones -->
+                            </div>
+                        </div>
+                        <div class="conversation-detail">
+                            <div class="conversation-header-detail">
+                                <div class="conversation-contact">
+                                    <div class="contact-avatar-small">MG</div>
+                                    <div>
+                                        <h4>María González</h4>
+                                        <span class="contact-status">En línea</span>
+                                    </div>
+                                </div>
+                                <div class="conversation-actions">
+                                    <button class="icon-btn"><i class="fas fa-phone"></i></button>
+                                    <button class="icon-btn"><i class="fas fa-video"></i></button>
+                                    <button class="icon-btn"><i class="fas fa-ellipsis-v"></i></button>
+                                </div>
+                            </div>
+                            <div class="conversation-messages">
+                                <div class="message received">
+                                    <div class="message-content">
+                                        Hola, me interesa el servicio premium que ofrecen
+                                    </div>
+                                    <div class="message-time">14:30</div>
+                                </div>
+                                <div class="message sent">
+                                    <div class="message-content">
+                                        ¡Hola María! Claro, con gusto te ayudo. ¿Qué información específica necesitas?
+                                    </div>
+                                    <div class="message-time">14:32</div>
+                                </div>
+                            </div>
+                            <div class="conversation-input">
+                                <div class="input-actions">
+                                    <button class="icon-btn"><i class="fas fa-paperclip"></i></button>
+                                    <button class="icon-btn"><i class="fas fa-smile"></i></button>
+                                </div>
+                                <input type="text" placeholder="Escribe un mensaje..." class="message-input">
+                                <button class="send-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Nuevo Contacto -->
+    <div class="modal-overlay" id="newContactModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Nuevo Contacto</h3>
+                <button class="modal-close" onclick="closeModal('newContactModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="newContactForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Apellido *</label>
+                            <input type="text" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono</label>
+                        <input type="tel" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Canal Preferido</label>
+                        <select class="form-select">
+                            <option>WhatsApp</option>
+                            <option>Messenger</option>
+                            <option>Instagram</option>
+                            <option>Email</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Etiqueta</label>
+                        <select class="form-select">
+                            <option>Cliente</option>
+                            <option>Prospecto</option>
+                            <option>Lead calificado</option>
+                            <option>Proveedor</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('newContactModal')">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveContact()">Guardar Contacto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Configuración WhatsApp -->
+    <div class="modal-overlay" id="whatsappConfigModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fab fa-whatsapp"></i> Configuración WhatsApp Business</h3>
+                <button class="modal-close" onclick="closeModal('whatsappConfigModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="whatsapp-status">
+                    <div class="status-indicator connected">
+                        <div class="status-dot"></div>
+                        <span>Conectado</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Número de WhatsApp Business</label>
+                    <input type="text" class="form-input" value="+1 234 567 890" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mensaje de Bienvenida</label>
+                    <textarea class="form-textarea" placeholder="Mensaje automático para nuevos contactos..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Respuestas Automáticas</label>
+                    <div class="automated-responses">
+                        <div class="response-item">
+                            <span>Fuera de horario</span>
+                            <button class="icon-btn"><i class="fas fa-edit"></i></button>
+                        </div>
+                        <div class="response-item">
+                            <span>Consulta frecuente</span>
+                            <button class="icon-btn"><i class="fas fa-edit"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('whatsappConfigModal')">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="saveWhatsAppConfig()">Guardar Configuración</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/crm.js') }}"></script>
+</body>
+</html>

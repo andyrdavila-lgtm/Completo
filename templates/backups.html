@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backups y Respaldos - A&D</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/backups.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar izquierdo -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-database"></i> Backups</h2>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Estado del Sistema</h3>
+                <div class="stats-card">
+                    <div class="stats-number" id="backups-exitosos">98%</div>
+                    <div class="stats-label">Éxito Backups</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="espacio-utilizado">65%</div>
+                    <div class="stats-label">Espacio Usado</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="backups-hoy">3</div>
+                    <div class="stats-label">Hoy</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Próximos Backups</h3>
+                <div class="reminder-item">
+                    <div class="reminder-date">Hoy, 02:00 AM</div>
+                    <div class="reminder-text">Backup Completo</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-date">Hoy, 12:00 PM</div>
+                    <div class="reminder-text">Backup Incremental</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Acciones Rápidas</h3>
+                <div class="reminder-item">
+                    <div class="reminder-text">Backup Manual</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-text">Ver Logs</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-text">Configurar</div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Contenido principal -->
+        <main class="dashboard-main">
+            <!-- Top Bar -->
+            <header class="dashboard-topbar">
+                <div class="company-info">
+                    <h1>A&D Empresa</h1>
+                    <p>Backups y Respaldos - <span id="user-name">Usuario</span></p>
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar backups...">
+                </div>
+                
+                <nav class="dashboard-tabs">
+                    <button class="tab">Inicio</button>
+                    <button class="tab">Configuración</button>
+                    <button class="tab active">Backups</button>
+                    <button class="tab">Logs</button>
+                </nav>
+                
+                <div class="topbar-actions">
+                    <button class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">2</span>
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Contenido del Módulo -->
+            <div class="dashboard-content">
+                <!-- Estadísticas -->
+                <div class="module-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="stat-number" id="total-backups">1,245</div>
+                        <div class="stat-label">Total Backups</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-number" id="backups-exitosos-main">98.2%</div>
+                        <div class="stat-label">Éxito</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-hdd"></i>
+                        </div>
+                        <div class="stat-number" id="espacio-total">2.5 TB</div>
+                        <div class="stat-label">Espacio Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-number" id="ultimo-backup">2h</div>
+                        <div class="stat-label">Último Backup</div>
+                    </div>
+                </div>
+                
+                <!-- Acciones Principales -->
+                <div class="actions-container">
+                    <div class="action-buttons">
+                        <button class="action-btn large primary">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Backup Manual</span>
+                        </button>
+                        <button class="action-btn large success">
+                            <i class="fas fa-sync"></i>
+                            <span>Restaurar</span>
+                        </button>
+                        <button class="action-btn large secondary">
+                            <i class="fas fa-cog"></i>
+                            <span>Configurar</span>
+                        </button>
+                        <button class="action-btn large info">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Ver Logs</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Estado de Almacenamiento -->
+                <div class="storage-container">
+                    <div class="storage-card">
+                        <h3><i class="fas fa-hdd"></i> Estado de Almacenamiento</h3>
+                        <div class="storage-info">
+                            <div class="storage-item">
+                                <div class="storage-label">Disco Local</div>
+                                <div class="storage-bar">
+                                    <div class="storage-fill" style="width: 65%"></div>
+                                </div>
+                                <div class="storage-details">1.6 TB / 2.5 TB (65%)</div>
+                            </div>
+                            <div class="storage-item">
+                                <div class="storage-label">Nube AWS</div>
+                                <div class="storage-bar">
+                                    <div class="storage-fill" style="width: 42%"></div>
+                                </div>
+                                <div class="storage-details">420 GB / 1 TB (42%)</div>
+                            </div>
+                            <div class="storage-item">
+                                <div class="storage-label">Google Drive</div>
+                                <div class="storage-bar">
+                                    <div class="storage-fill" style="width: 28%"></div>
+                                </div>
+                                <div class="storage-details">280 GB / 1 TB (28%)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial de Backups -->
+                <div class="backups-table-container">
+                    <div class="table-header">
+                        <h2><i class="fas fa-history"></i> Historial de Backups</h2>
+                        <div class="table-actions">
+                            <button class="filter-btn secondary">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                            <button class="filter-btn">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha/Hora</th>
+                                    <th>Tipo</th>
+                                    <th>Tamaño</th>
+                                    <th>Ubicación</th>
+                                    <th>Estado</th>
+                                    <th>Duración</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="backups-body">
+                                <tr>
+                                    <td>10/10/2024 02:00</td>
+                                    <td>Completo</td>
+                                    <td>15.2 GB</td>
+                                    <td>Local + Nube</td>
+                                    <td><span class="status-badge status-completado">Completado</span></td>
+                                    <td>45 min</td>
+                                    <td>
+                                        <button class="action-btn primary">Ver Log</button>
+                                        <button class="action-btn success">Restaurar</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10/10/2024 12:00</td>
+                                    <td>Incremental</td>
+                                    <td>2.1 GB</td>
+                                    <td>Local + Nube</td>
+                                    <td><span class="status-badge status-completado">Completado</span></td>
+                                    <td>12 min</td>
+                                    <td>
+                                        <button class="action-btn primary">Ver Log</button>
+                                        <button class="action-btn success">Restaurar</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>09/10/2024 02:00</td>
+                                    <td>Completo</td>
+                                    <td>14.8 GB</td>
+                                    <td>Local + Nube</td>
+                                    <td><span class="status-badge status-error">Error</span></td>
+                                    <td>--</td>
+                                    <td>
+                                        <button class="action-btn primary">Ver Log</button>
+                                        <button class="action-btn danger">Reintentar</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/backups.js') }}"></script>
+</body>
+</html>

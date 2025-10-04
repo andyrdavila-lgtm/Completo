@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Turnos - A&D</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/turnos.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar izquierdo -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-clock"></i> A&D Turnos</h2>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Turno Actual</h3>
+                <div class="stats-card" id="current-shift-info" style="display: none;">
+                    <div class="stats-number" id="current-shift-user">Usuario</div>
+                    <div class="stats-label" id="current-shift-type">Tipo de Turno</div>
+                    <div class="stats-time" id="current-shift-duration">00:00:00</div>
+                </div>
+                <div class="stats-card" id="no-shift-info">
+                    <div class="stats-number">-</div>
+                    <div class="stats-label">No hay turno activo</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Estadísticas del Día</h3>
+                <div class="stats-card">
+                    <div class="stats-number" id="daily-turns">0</div>
+                    <div class="stats-label">Turnos Hoy</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="active-turns">0</div>
+                    <div class="stats-label">Turnos Activos</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number" id="total-hours">0h</div>
+                    <div class="stats-label">Horas Trabajadas</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Próximos Turnos</h3>
+                <div class="reminder-item">
+                    <div class="reminder-date">Hoy, 14:00</div>
+                    <div class="reminder-text">María García - Tarde</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-date">Hoy, 22:00</div>
+                    <div class="reminder-text">Carlos López - Noche</div>
+                </div>
+                <div class="reminder-item">
+                    <div class="reminder-date">Mañana, 08:00</div>
+                    <div class="reminder-text">Ana Martínez - Mañana</div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Contenido principal -->
+        <main class="dashboard-main">
+            <!-- Top Bar -->
+            <header class="dashboard-topbar">
+                <div class="company-info">
+                    <h1>A&D Restaurante</h1>
+                    <p>Gestión de Turnos - <span id="user-name">Usuario</span></p>
+                </div>
+                
+                <div class="search-bar">
+                    <input type="text" placeholder="Buscar empleados, turnos...">
+                </div>
+                
+                <nav class="dashboard-tabs">
+                    <button class="tab">Inicio</button>
+                    <button class="tab">Pedidos</button>
+                    <button class="tab active">Turnos</button>
+                    <button class="tab">Empleados</button>
+                </nav>
+                
+                <div class="topbar-actions">
+                    <button class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">2</span>
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Contenido del Módulo de Turnos -->
+            <div class="dashboard-content">
+                <!-- Gestión de Turnos -->
+                <div class="turns-management-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-clock"></i> Gestión de Turnos</h2>
+                    </div>
+                    
+                    <!-- Selección de Usuario -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Seleccionar Usuario</label>
+                            <select id="usuario-turno" class="form-select">
+                                <option value="">-- Seleccionar usuario --</option>
+                                <option value="1">Juan Pérez - Mesero</option>
+                                <option value="2">María García - Cajera</option>
+                                <option value="3">Carlos López - Chef</option>
+                                <option value="4">Ana Martínez - Administradora</option>
+                                <option value="5">Pedro Rodríguez - Repartidor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Turno</label>
+                            <select id="tipo-turno" class="form-select">
+                                <option value="mañana">Mañana (08:00 - 14:00)</option>
+                                <option value="tarde">Tarde (14:00 - 22:00)</option>
+                                <option value="noche">Noche (22:00 - 06:00)</option>
+                                <option value="completo">Completo (08:00 - 22:00)</option>
+                                <option value="personalizado">Personalizado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Horario Personalizado (se muestra solo cuando se selecciona "Personalizado") -->
+                    <div id="custom-schedule" class="form-row" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Hora de Inicio</label>
+                            <input type="time" id="hora-inicio" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hora de Fin</label>
+                            <input type="time" id="hora-fin" class="form-input">
+                        </div>
+                    </div>
+
+                    <!-- Botones de Control -->
+                    <div class="actions-row">
+                        <button id="iniciar-turno-btn" class="action-btn success" disabled>
+                            <i class="fas fa-play-circle"></i> Inicio del Turno
+                        </button>
+                        <button id="pausar-turno-btn" class="action-btn warning" style="display: none;">
+                            <i class="fas fa-pause-circle"></i> Pausar Turno
+                        </button>
+                        <button id="reanudar-turno-btn" class="action-btn info" style="display: none;">
+                            <i class="fas fa-play-circle"></i> Reanudar Turno
+                        </button>
+                        <button id="finalizar-turno-btn" class="action-btn danger" disabled>
+                            <i class="fas fa-stop-circle"></i> Fin del Turno
+                        </button>
+                    </div>
+
+                    <!-- Tarjeta de Resumen del Turno Activo -->
+                    <div id="resumen-turno-activo" class="active-shift-card" style="display: none;">
+                        <div class="card-header">
+                            <h3><i class="fas fa-clock"></i> Turno en Curso</h3>
+                            <span class="status-badge status-active">Activo</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="shift-info">
+                                <div class="info-item">
+                                    <strong>Usuario:</strong> <span id="turno-usuario">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>Tipo:</strong> <span id="turno-tipo">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>Iniciado:</strong> <span id="turno-inicio">-</span>
+                                </div>
+                                <div class="info-item">
+                                    <strong>Duración:</strong> <span id="turno-duracion">00:00:00</span>
+                                </div>
+                            </div>
+                            <div class="shift-stats">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-utensils"></i>
+                                    </div>
+                                    <div class="stat-number" id="turno-pedidos">0</div>
+                                    <div class="stat-label">Pedidos Atendidos</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-dollar-sign"></i>
+                                    </div>
+                                    <div class="stat-number" id="turno-ventas">$0</div>
+                                    <div class="stat-label">Ventas Totales</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="stat-number" id="turno-clientes">0</div>
+                                    <div class="stat-label">Clientes Atendidos</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div class="stat-number" id="turno-calificacion">0.0</div>
+                                    <div class="stat-label">Calificación</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Historial de Turnos -->
+                <div class="turns-history-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-history"></i> Historial de Turnos</h2>
+                        <div class="filters">
+                            <select id="filter-period" class="filter-select">
+                                <option value="today">Hoy</option>
+                                <option value="week">Esta Semana</option>
+                                <option value="month">Este Mes</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                            <button class="filter-btn" id="export-turns">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Turno</th>
+                                    <th>Pedidos</th>
+                                    <th>Ventas</th>
+                                    <th>Clientes</th>
+                                    <th>Duración</th>
+                                    <th>Inicio</th>
+                                    <th>Fin</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historial-turnos-body">
+                                <!-- Los datos se cargarán por API -->
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted">Cargando historial...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Resumen de Rendimiento -->
+                <div class="performance-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-line"></i> Resumen de Rendimiento</h2>
+                    </div>
+                    <div class="performance-cards">
+                        <div class="performance-card">
+                            <div class="performance-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="performance-content">
+                                <div class="performance-value" id="avg-shift-duration">0h 0m</div>
+                                <div class="performance-label">Duración Promedio</div>
+                            </div>
+                        </div>
+                        <div class="performance-card">
+                            <div class="performance-icon">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                            <div class="performance-content">
+                                <div class="performance-value" id="avg-orders-per-shift">0</div>
+                                <div class="performance-label">Pedidos por Turno</div>
+                            </div>
+                        </div>
+                        <div class="performance-card">
+                            <div class="performance-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="performance-content">
+                                <div class="performance-value" id="avg-sales-per-shift">$0</div>
+                                <div class="performance-label">Ventas por Turno</div>
+                            </div>
+                        </div>
+                        <div class="performance-card">
+                            <div class="performance-icon">
+                                <i class="fas fa-user-clock"></i>
+                            </div>
+                            <div class="performance-content">
+                                <div class="performance-value" id="efficiency-rate">0%</div>
+                                <div class="performance-label">Eficiencia</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div class="modal-overlay" id="confirmationModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Confirmar Acción</h3>
+                <button class="modal-close" onclick="closeModal('confirmationModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">¿Está seguro de que desea realizar esta acción?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('confirmationModal')">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmAction">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalles del Turno -->
+    <div class="modal-overlay" id="shiftDetailsModal">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h3>Detalles del Turno</h3>
+                <button class="modal-close" onclick="closeModal('shiftDetailsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="shift-details">
+                    <div class="detail-section">
+                        <h4>Información General</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <strong>Usuario:</strong> <span id="detail-user">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Tipo de Turno:</strong> <span id="detail-type">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Estado:</strong> <span id="detail-status">-</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Duración:</strong> <span id="detail-duration">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>Estadísticas</h4>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value" id="detail-orders">0</div>
+                                <div class="stat-label">Pedidos</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="detail-sales">$0</div>
+                                <div class="stat-label">Ventas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="detail-customers">0</div>
+                                <div class="stat-label">Clientes</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="detail-rating">0.0</div>
+                                <div class="stat-label">Calificación</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>Actividad del Turno</h4>
+                        <div class="activity-timeline" id="activity-timeline">
+                            <!-- La línea de tiempo se cargará aquí -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('shiftDetailsModal')">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="generateShiftReport()">
+                    <i class="fas fa-file-pdf"></i> Generar Reporte
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/turnos.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<form method="POST">
+    <div class="mb-3">
+        <label for="name" class="form-label">Nombre del Producto</label>
+        <input type="text" class="form-control" id="name" name="name" value="{{ product.name if product else '' }}" required>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="sku" class="form-label">SKU (Código de Producto)</label>
+                <input type="text" class="form-control" id="sku" name="sku" value="{{ product.sku if product else '' }}">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="price" class="form-label">Precio</label>
+                <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" step="0.01" class="form-control" id="price" name="price" value="{{ '%.2f'|format(product.price) if product else '0.00' }}" required>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Descripción</label>
+        <textarea class="form-control" id="description" name="description" rows="3">{{ product.description if product else '' }}</textarea>
+    </div>
+    <div class="mb-3">
+        <label for="stock" class="form-label">Cantidad en Stock</label>
+        <input type="number" class="form-control" id="stock" name="stock" value="{{ product.stock if product else '0' }}" required>
+    </div>
+    <hr>
+    <a href="{{ url_for('products.manage_products') }}" class="btn btn-secondary">Cancelar</a>
+    <button type="submit" class="btn btn-primary">{{ 'Guardar Cambios' if product else 'Crear Producto' }}</button>
+</form>

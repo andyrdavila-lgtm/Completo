@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - {{ super() }}{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Dashboard de {{ g.tenant.name if g.tenant else 'Usuario' }}</h2>
+        <small>Bienvenido, {{ g.user.first_name or g.user.username }}.</small>
+    </div>
+    <hr>
+
+    <div class="alert alert-info">
+        <p>¡Bienvenido a tu panel de control! Desde aquí puedes acceder a todos los módulos de gestión de tu negocio.</p>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-box fa-3x text-primary mb-3"></i>
+                    <h5 class="card-title">Gestión de Productos</h5>
+                    <p class="card-text">Administra tu catálogo, controla el stock y define los precios.</p>
+                    <a href="#" class="btn btn-primary">Ir a Productos</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-shopping-cart fa-3x text-success mb-3"></i>
+                    <h5 class="card-title">Gestión de Compras</h5>
+                    <p class="card-text">Crea y gestiona tus órdenes de compra a proveedores.</p>
+                    <a href="#" class="btn btn-success">Ir a Compras</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-file-invoice-dollar fa-3x text-info mb-3"></i>
+                    <h5 class="card-title">Gestión de Facturación</h5>
+                    <p class="card-text">Emite y administra las facturas para tus clientes.</p>
+                    <a href="#" class="btn btn-info">Ir a Facturación</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -4,21 +4,20 @@ from flask import g, flash, redirect, url_for
 def permission_required(permission_name):
     """
     Decorador que comprueba si el usuario actual tiene el permiso especificado.
-    Redirige a la página de login si no está autenticado, o al dashboard
-    si no tiene permisos suficientes.
+    Si no está autenticado, redirige al login.
+    Si no tiene permiso, muestra un error 403 (Prohibido).
     """
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            # Si el usuario no está logueado, g.user no existirá.
-            if not hasattr(g, 'user') or not g.user:
+            if not g.user:
                 flash('Debes iniciar sesión para ver esta página.', 'warning')
                 return redirect(url_for('auth.login'))
 
-            # Comprobar si el usuario tiene el permiso requerido.
             if not g.user.has_permission(permission_name):
+                # Idealmente, aquí se mostraría una página de error 403.
+                # Por ahora, redirigimos al dashboard con un mensaje de error.
                 flash('No tienes permiso para acceder a esta página.', 'danger')
-                # Redirigir al dashboard como página por defecto si no hay permiso.
                 return redirect(url_for('dashboard.dashboard'))
 
             return f(*args, **kwargs)

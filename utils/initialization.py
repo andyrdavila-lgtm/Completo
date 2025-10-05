@@ -2,134 +2,76 @@ from models.base import db, BusinessType, Client, User, Permission, Role
 from werkzeug.security import generate_password_hash
 
 def create_initial_permissions():
-    """Crea los permisos iniciales del sistema si no existen."""
-    print("🔎 Verificando permisos del sistema...")
-
+    """Crea todos los permisos necesarios para el sistema."""
     permissions_to_create = {
         'superadmin.dashboard.view': 'Ver el dashboard del superadministrador',
         'superadmin.roles.manage': 'Gestionar roles y permisos',
-        'superadmin.clients.view': 'Ver la lista de clientes',
-        'superadmin.clients.create': 'Crear nuevos clientes',
-        'superadmin.clients.edit': 'Editar clientes existentes',
-        'superadmin.clients.delete': 'Eliminar clientes',
+        'superadmin.clients.manage': 'Gestionar clientes (CRUD)',
         'dashboard.view': 'Ver el dashboard del cliente',
-        'users.view': 'Ver la lista de usuarios del cliente',
-        'users.create': 'Crear nuevos usuarios para el cliente',
-        'users.edit': 'Editar usuarios del cliente',
-        'users.delete': 'Eliminar usuarios del cliente',
-        'reports.view': 'Ver los informes del cliente',
+        'users.manage': 'Gestionar usuarios del cliente',
+        'products.manage': 'Gestionar productos del cliente',
+        'purchases.manage': 'Gestionar órdenes de compra',
+        'invoices.manage': 'Gestionar facturas',
+        'crm.manage': 'Gestionar CRM',
+        'reports.view': 'Ver informes del cliente',
     }
 
     existing_permissions = {p.name for p in Permission.query.all()}
 
-    new_permissions = []
     for name, description in permissions_to_create.items():
         if name not in existing_permissions:
-            new_permissions.append(Permission(name=name, description=description))
+            db.session.add(Permission(name=name, description=description))
 
-    if new_permissions:
-        print(f"✨ Creando {len(new_permissions)} nuevos permisos...")
-        db.session.add_all(new_permissions)
-        db.session.commit()
-        print("✅ Permisos creados.")
-    else:
-        print("✅ Permisos ya están al día.")
-
-def initialize_system_data():
-    """Inicializar datos básicos del sistema (Tipos de negocio, Permisos y Roles)."""
-    try:
-        # Crear tipos de negocio
-        if BusinessType.query.count() == 0:
-            print("🏢 Creando tipos de negocio...")
-            business_types = [
-                BusinessType(name='Restaurante', description='Restaurantes y servicios de comida'),
-                BusinessType(name='Retail', description='Tiendas y comercio minorista'),
-                BusinessType(name='Servicios', description='Servicios profesionales'),
-                BusinessType(name='Hoteleria', description='Hoteles y hospedaje'),
-                BusinessType(name='Salud', description='Clínicas y servicios de salud'),
-            ]
-            db.session.add_all(business_types)
-            db.session.commit()
-            print("✅ Tipos de negocio creados.")
-
-        # Crear permisos y roles por defecto
-        create_initial_permissions()
-        create_default_roles()
-
-        print("✅ Datos del sistema inicializados correctamente.")
-
-    except Exception as e:
-        db.session.rollback()
-        print(f"❌ Error inicializando datos del sistema: {e}")
-        raise
+    db.session.commit()
 
 def create_default_roles():
-    """Crea los roles por defecto si no existen."""
-    print("🔎 Verificando roles del sistema...")
-    if Role.query.filter_by(name='Administrador de Cliente').first():
-        print("✅ Roles por defecto ya existen.")
-        return
+    """Crea o actualiza los roles por defecto del sistema."""
+    role_name = 'Administrador de Cliente'
+    expected_permissions = {
+        'dashboard.view', 'users.manage', 'products.manage',
+        'purchases.manage', 'invoices.manage', 'crm.manage', 'reports.view'
+    }
 
-    print("✨ Creando rol 'Administrador de Cliente'...")
-    admin_role = Role(name='Administrador de Cliente', description='Rol con permisos para administrar un cliente específico.')
+    admin_role = Role.query.filter_by(name=role_name).first()
+    if not admin_role:
+        admin_role = Role(name=role_name, description='Rol con permisos para administrar un cliente.')
+        db.session.add(admin_role)
 
-    # Asignar permisos básicos al rol de administrador
-    permissions_for_admin = [
-        'dashboard.view',
-        'users.view',
-        'users.create',
-        'users.edit',
-        'reports.view'
-    ]
-    permissions = Permission.query.filter(Permission.name.in_(permissions_for_admin)).all()
-    admin_role.permissions.extend(permissions)
+    current_permissions = {p.name for p in admin_role.permissions}
+    missing_permissions = expected_permissions - current_permissions
 
-    db.session.add(admin_role)
+    if missing_permissions:
+        permissions_to_add = Permission.query.filter(Permission.name.in_(missing_permissions)).all()
+        admin_role.permissions.extend(permissions_to_add)
+
     db.session.commit()
-    print("✅ Rol 'Administrador de Cliente' creado con permisos básicos.")
+
+def initialize_system_data():
+    """Inicializa los datos básicos del sistema."""
+    create_initial_permissions()
+    create_default_roles()
 
 def create_demo_users():
-    """Crear usuarios de demostración (superadmin y un cliente de ejemplo)."""
-    try:
-        # --- Superadmin ---
-        if not User.query.filter_by(username='superadmin').first():
-            print("👑 Creando usuario superadmin...")
-            superadmin = User(
-                username='superadmin',
-                email='superadmin@sistemacom.com',
-                first_name='Super',
-                last_name='Admin',
-                role='superadmin'
-            )
-            superadmin.set_password('admin123')
-            db.session.add(superadmin)
-            print("✅ Superadmin creado (usuario: superadmin, contraseña: admin123).")
+    """Crea el superadmin y un cliente de demostración con su usuario."""
+    if not User.query.filter_by(username='superadmin').first():
+        superadmin = User(username='superadmin', email='superadmin@sistemacom.com', role='superadmin')
+        superadmin.set_password('admin123')
+        db.session.add(superadmin)
 
-        # --- Cliente y Usuario de Demostración ---
-        if not Client.query.filter_by(name='Cliente Demo').first():
-            print("🏢 Creando cliente y usuario de demostración...")
-            demo_client = Client(name='Cliente Demo', email='demo@cliente.com', business_type_id=1)
-            db.session.add(demo_client)
+    if not Client.query.filter_by(name='Cliente Demo').first():
+        demo_client = Client(name='Cliente Demo')
+        db.session.add(demo_client)
+        db.session.flush()
 
-            admin_role = Role.query.filter_by(name='Administrador de Cliente').first()
+        admin_role = Role.query.filter_by(name='Administrador de Cliente').first()
+        demo_user = User(
+            username='admin_demo',
+            email='admin@cliente.demo',
+            client_id=demo_client.id
+        )
+        demo_user.set_password('demo123')
+        if admin_role:
+            demo_user.roles.append(admin_role)
+        db.session.add(demo_user)
 
-            demo_user = User(
-                username='admin_demo',
-                email='admin@cliente.demo',
-                first_name='Admin',
-                last_name='Demo',
-                client=demo_client
-            )
-            demo_user.set_password('demo123')
-            if admin_role:
-                demo_user.roles.append(admin_role)
-
-            db.session.add(demo_user)
-            print("✅ Cliente Demo y usuario admin_demo creados (contraseña: demo123).")
-
-        db.session.commit()
-
-    except Exception as e:
-        db.session.rollback()
-        print(f"❌ Error creando usuarios demo: {e}")
-        raise
+    db.session.commit()

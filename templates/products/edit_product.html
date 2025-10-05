@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Producto - {{ super() }}{% endblock %}
+
+{% block content %}
+    <h2>Editar Producto: {{ product.name }}</h2>
+    <hr>
+    {% include "products/_product_form.html" %}
+{% endblock %}

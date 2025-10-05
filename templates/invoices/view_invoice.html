@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Factura #{{ invoice.id }} - {{ super() }}{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center">
+        <h2>Detalle de Factura #{{ invoice.id }}</h2>
+        <a href="{{ url_for('invoices.manage_invoices') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Facturas
+        </a>
+    </div>
+    <hr>
+
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Cliente:</strong> {{ invoice.customer_name }}</p>
+            <p><strong>Fecha de Factura:</strong> {{ invoice.invoice_date.strftime('%Y-%m-%d') }}</p>
+            <p><strong>Fecha de Vencimiento:</strong> {{ invoice.due_date.strftime('%Y-%m-%d') if invoice.due_date else 'N/A' }}</p>
+        </div>
+        <div class="col-md-6 text-end">
+            <p><strong>Estado:</strong>
+                <span class="badge bg-secondary fs-6">{{ invoice.status }}</span>
+            </p>
+            <p class="fs-4"><strong>Monto Total:</strong> ${{ "%.2f"|format(invoice.total_amount) }}</p>
+        </div>
+    </div>
+
+    <h4 class="mt-4">Productos en esta Factura</h4>
+    <table class="table table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>Producto</th>
+                <th>SKU</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.product.sku }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>${{ "%.2f"|format(item.unit_price) }}</td>
+                    <td>${{ "%.2f"|format(item.quantity * item.unit_price) }}</td>
+                </tr>
+            {% else %}
+                 <tr>
+                    <td colspan="5" class="text-center">Esta factura no tiene productos.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
